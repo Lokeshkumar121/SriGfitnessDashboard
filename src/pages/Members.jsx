@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 
 import {
@@ -87,77 +88,78 @@ const Members = () => {
   | Fetch Payment Statuses
   |--------------------------------------------------------------------------
   */
-const fetchPaymentStatuses = async (memberList) => {
-  try {
-    if (!memberList.length) {
-      setPaymentStatuses({});
-      return;
+
+  const fetchPaymentStatuses = async (memberList) => {
+    try {
+      if (!memberList.length) {
+        setPaymentStatuses({});
+        return;
+      }
+
+      const results = await Promise.all(
+        memberList.map(async (member) => {
+          try {
+            const response = await api.get(
+              `/payments/member/${member._id}/summary`
+            );
+
+            const paymentData =
+              response.data?.data;
+
+            const summary =
+              paymentData?.summary;
+
+            console.log(
+              "PAYMENT DATA:",
+              member.fullName,
+              paymentData
+            );
+
+            const paymentStatus =
+              summary?.currentMembership
+                ?.paymentStatus ||
+              summary?.paymentStatus ||
+              "unpaid";
+
+            return {
+              memberId: member._id,
+              status: paymentStatus,
+            };
+          } catch (error) {
+            console.error(
+              `Payment status error for ${member.fullName}:`,
+              error.response?.data ||
+                error.message
+            );
+
+            return {
+              memberId: member._id,
+              status: "unpaid",
+            };
+          }
+        })
+      );
+
+      const statusMap = {};
+
+      results.forEach((item) => {
+        statusMap[item.memberId] =
+          item.status;
+      });
+
+      console.log(
+        "PAYMENT STATUS MAP:",
+        statusMap
+      );
+
+      setPaymentStatuses(statusMap);
+    } catch (error) {
+      console.error(
+        "Fetch payment statuses error:",
+        error
+      );
     }
-
-    const results = await Promise.all(
-      memberList.map(async (member) => {
-        try {
-          const response = await api.get(
-            `/payments/member/${member._id}/summary`
-          );
-
-          const paymentData =
-            response.data?.data;
-
-          const summary =
-            paymentData?.summary;
-
-          console.log(
-            "PAYMENT DATA:",
-            member.fullName,
-            paymentData
-          );
-
-          const paymentStatus =
-            summary?.currentMembership
-              ?.paymentStatus ||
-            summary?.paymentStatus ||
-            "unpaid";
-
-          return {
-            memberId: member._id,
-            status: paymentStatus,
-          };
-        } catch (error) {
-          console.error(
-            `Payment status error for ${member.fullName}:`,
-            error.response?.data ||
-              error.message
-          );
-
-          return {
-            memberId: member._id,
-            status: "unpaid",
-          };
-        }
-      })
-    );
-
-    const statusMap = {};
-
-    results.forEach((item) => {
-      statusMap[item.memberId] =
-        item.status;
-    });
-
-    console.log(
-      "PAYMENT STATUS MAP:",
-      statusMap
-    );
-
-    setPaymentStatuses(statusMap);
-  } catch (error) {
-    console.error(
-      "Fetch payment statuses error:",
-      error
-    );
-  }
-};
+  };
 
   /*
   |--------------------------------------------------------------------------
@@ -165,39 +167,39 @@ const fetchPaymentStatuses = async (memberList) => {
   |--------------------------------------------------------------------------
   */
 
-const fetchMembers = async () => {
-  try {
-    setLoading(true);
+  const fetchMembers = async () => {
+    try {
+      setLoading(true);
 
-    const params = new URLSearchParams();
+      const params = new URLSearchParams();
 
-    if (search) {
-      params.append("search", search);
+      if (search) {
+        params.append("search", search);
+      }
+
+      if (status) {
+        params.append("status", status);
+      }
+
+      const response = await api.get(
+        `/members?${params.toString()}`
+      );
+
+      const memberList =
+        response.data?.data?.members || [];
+
+      setMembers(memberList);
+
+      await fetchPaymentStatuses(memberList);
+    } catch (error) {
+      console.error(
+        "Fetch members error:",
+        error
+      );
+    } finally {
+      setLoading(false);
     }
-
-    if (status) {
-      params.append("status", status);
-    }
-
-    const response = await api.get(
-      `/members?${params.toString()}`
-    );
-
-    const memberList =
-      response.data?.data?.members || [];
-
-    setMembers(memberList);
-
-    await fetchPaymentStatuses(memberList);
-  } catch (error) {
-    console.error(
-      "Fetch members error:",
-      error
-    );
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   /*
   |--------------------------------------------------------------------------
@@ -223,24 +225,12 @@ const fetchMembers = async () => {
         `/members/${member._id}`
       );
 
-      /*
-      |--------------------------------------------------------------------------
-      | Remove From Members List
-      |--------------------------------------------------------------------------
-      */
-
       setMembers((prev) =>
         prev.filter(
           (item) =>
             item._id !== member._id
         )
       );
-
-      /*
-      |--------------------------------------------------------------------------
-      | Remove Payment Status
-      |--------------------------------------------------------------------------
-      */
 
       setPaymentStatuses((prev) => {
         const updated = {
@@ -251,12 +241,6 @@ const fetchMembers = async () => {
 
         return updated;
       });
-
-      /*
-      |--------------------------------------------------------------------------
-      | Close Details If Same Member
-      |--------------------------------------------------------------------------
-      */
 
       if (
         selectedMember?._id ===
@@ -363,33 +347,15 @@ const fetchMembers = async () => {
         ),
       ]);
 
-      /*
-      |--------------------------------------------------------------------------
-      | Membership Data
-      |--------------------------------------------------------------------------
-      */
-
       setMemberMemberships(
         membershipResponse.data.data
           .memberships || []
       );
 
-      /*
-      |--------------------------------------------------------------------------
-      | Payment Data
-      |--------------------------------------------------------------------------
-      */
-
       setPaymentSummary(
         paymentResponse.data.data ||
           null
       );
-
-      /*
-      |--------------------------------------------------------------------------
-      | Update List Payment Status
-      |--------------------------------------------------------------------------
-      */
 
       const currentPaymentStatus =
         paymentResponse.data.data?.summary
@@ -520,7 +486,7 @@ const fetchMembers = async () => {
       return {
         label: "PAID",
         className:
-          "bg-emerald-500/10 text-emerald-400",
+          "bg-emerald-50 text-emerald-600 border border-emerald-100",
       };
     }
 
@@ -530,14 +496,14 @@ const fetchMembers = async () => {
       return {
         label: "PARTIALLY PAID",
         className:
-          "bg-amber-500/10 text-amber-400",
+          "bg-amber-50 text-amber-600 border border-amber-100",
       };
     }
 
     return {
       label: "UNPAID",
       className:
-        "bg-red-500/10 text-red-400",
+        "bg-red-50 text-red-600 border border-red-100",
     };
   };
 
@@ -551,18 +517,18 @@ const fetchMembers = async () => {
     memberStatus
   ) => {
     if (memberStatus === "active") {
-      return "bg-emerald-500/10 text-emerald-400";
+      return "bg-emerald-50 text-emerald-600 border border-emerald-100";
     }
 
     if (memberStatus === "expired") {
-      return "bg-red-500/10 text-red-400";
+      return "bg-red-50 text-red-600 border border-red-100";
     }
 
     if (memberStatus === "suspended") {
-      return "bg-amber-500/10 text-amber-400";
+      return "bg-amber-50 text-amber-600 border border-amber-100";
     }
 
-    return "bg-slate-500/10 text-slate-400";
+    return "bg-slate-100 text-slate-500 border border-slate-200";
   };
 
   return (
@@ -575,22 +541,20 @@ const fetchMembers = async () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 
         <div>
-
-          <h1 className="text-2xl font-bold">
+          <h1 className="text-2xl font-bold text-slate-900">
             Members
           </h1>
 
           <p className="text-sm text-slate-500 mt-1">
             Manage all gym members
           </p>
-
         </div>
 
         <button
           onClick={() =>
             setModal(true)
           }
-          className="h-11 px-5 rounded-xl bg-blue-600 hover:bg-blue-500 flex items-center justify-center gap-2 font-semibold transition"
+          className="h-11 px-5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-2 font-semibold transition shadow-sm shadow-blue-600/20"
         >
           <Plus size={18} />
 
@@ -603,7 +567,7 @@ const fetchMembers = async () => {
       {/* Filters */}
       {/* ========================================================= */}
 
-      <div className="bg-slate-900 border border-white/10 rounded-2xl p-4">
+      <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
 
         <div className="flex flex-col md:flex-row gap-3">
 
@@ -611,7 +575,7 @@ const fetchMembers = async () => {
 
             <Search
               size={18}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
             />
 
             <input
@@ -622,7 +586,7 @@ const fetchMembers = async () => {
                 )
               }
               placeholder="Search name, phone, member ID..."
-              className="w-full h-11 bg-slate-950 border border-white/10 rounded-xl pl-11 pr-4 outline-none focus:border-blue-500"
+              className="w-full h-11 bg-white border border-slate-200 rounded-xl pl-11 pr-4 outline-none text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition"
             />
 
           </div>
@@ -634,7 +598,7 @@ const fetchMembers = async () => {
                 e.target.value
               )
             }
-            className="h-11 bg-slate-950 border border-white/10 rounded-xl px-4 outline-none text-sm"
+            className="h-11 bg-white border border-slate-200 rounded-xl px-4 outline-none text-sm text-slate-700 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition"
           >
             <option value="">
               All Status
@@ -665,7 +629,7 @@ const fetchMembers = async () => {
       {/* Members */}
       {/* ========================================================= */}
 
-      <div className="bg-slate-900 border border-white/10 rounded-2xl overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
 
         {loading ? (
 
@@ -677,12 +641,14 @@ const fetchMembers = async () => {
 
           <div className="p-12 text-center">
 
-            <Users
-              size={40}
-              className="mx-auto text-slate-700"
-            />
+            <div className="w-14 h-14 mx-auto rounded-2xl bg-blue-50 flex items-center justify-center">
+              <Users
+                size={28}
+                className="text-blue-500"
+              />
+            </div>
 
-            <p className="mt-4 font-medium">
+            <p className="mt-4 font-semibold text-slate-900">
               No members found
             </p>
 
@@ -706,33 +672,33 @@ const fetchMembers = async () => {
 
                 <thead>
 
-                  <tr className="border-b border-white/10 text-left">
+                  <tr className="border-b border-slate-100 text-left bg-slate-50/70">
 
-                    <th className="px-5 py-4 text-xs uppercase tracking-wider text-slate-500">
+                    <th className="px-5 py-4 text-xs uppercase tracking-wider text-slate-500 font-semibold">
                       Member
                     </th>
 
-                    <th className="px-5 py-4 text-xs uppercase tracking-wider text-slate-500">
+                    <th className="px-5 py-4 text-xs uppercase tracking-wider text-slate-500 font-semibold">
                       Contact
                     </th>
 
-                    <th className="px-5 py-4 text-xs uppercase tracking-wider text-slate-500">
+                    <th className="px-5 py-4 text-xs uppercase tracking-wider text-slate-500 font-semibold">
                       Gender
                     </th>
 
-                    <th className="px-5 py-4 text-xs uppercase tracking-wider text-slate-500">
+                    <th className="px-5 py-4 text-xs uppercase tracking-wider text-slate-500 font-semibold">
                       Membership
                     </th>
 
-                    <th className="px-5 py-4 text-xs uppercase tracking-wider text-slate-500">
+                    <th className="px-5 py-4 text-xs uppercase tracking-wider text-slate-500 font-semibold">
                       Payment
                     </th>
 
-                    <th className="px-5 py-4 text-xs uppercase tracking-wider text-slate-500">
+                    <th className="px-5 py-4 text-xs uppercase tracking-wider text-slate-500 font-semibold">
                       Status
                     </th>
 
-                    <th className="px-5 py-4 text-xs uppercase tracking-wider text-slate-500 text-right">
+                    <th className="px-5 py-4 text-xs uppercase tracking-wider text-slate-500 font-semibold text-right">
                       Action
                     </th>
 
@@ -770,24 +736,36 @@ const fetchMembers = async () => {
                               member
                             )
                           }
-                          className="border-b border-white/5 hover:bg-white/[0.03] cursor-pointer transition"
+                          className="border-b border-slate-100 hover:bg-slate-50 cursor-pointer transition"
                         >
 
                           {/* Member */}
 
                           <td className="px-5 py-4">
 
-                            <p className="font-medium">
-                              {
-                                member.fullName
-                              }
-                            </p>
+                            <div className="flex items-center gap-3">
 
-                            <p className="text-xs text-slate-500 mt-1">
-                              {
-                                member.memberId
-                              }
-                            </p>
+                              <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                                <UserRound
+                                  size={17}
+                                />
+                              </div>
+
+                              <div>
+                                <p className="font-semibold text-slate-900">
+                                  {
+                                    member.fullName
+                                  }
+                                </p>
+
+                                <p className="text-xs text-slate-500 mt-1">
+                                  {
+                                    member.memberId
+                                  }
+                                </p>
+                              </div>
+
+                            </div>
 
                           </td>
 
@@ -795,11 +773,11 @@ const fetchMembers = async () => {
 
                           <td className="px-5 py-4">
 
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 text-slate-600">
 
                               <Phone
                                 size={14}
-                                className="text-slate-500"
+                                className="text-slate-400"
                               />
 
                               <p className="text-sm">
@@ -814,7 +792,7 @@ const fetchMembers = async () => {
 
                           {/* Gender */}
 
-                          <td className="px-5 py-4 text-sm capitalize">
+                          <td className="px-5 py-4 text-sm text-slate-600 capitalize">
                             {
                               member.gender
                             }
@@ -827,13 +805,13 @@ const fetchMembers = async () => {
                             {member.status ===
                             "active" ? (
 
-                              <span className="inline-flex px-3 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400">
+                              <span className="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-600 border border-blue-100">
                                 ACTIVE
                               </span>
 
                             ) : (
 
-                              <span className="inline-flex px-3 py-1 rounded-full text-xs font-medium bg-slate-500/10 text-slate-400">
+                              <span className="inline-flex px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-500 border border-slate-200">
                                 NO ACTIVE
                                 MEMBERSHIP
                               </span>
@@ -891,7 +869,7 @@ const fetchMembers = async () => {
                                   member
                                 )
                               }
-                              className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                              className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 border border-red-100 disabled:opacity-50 disabled:cursor-not-allowed transition"
                             >
 
                               <Trash2
@@ -922,7 +900,7 @@ const fetchMembers = async () => {
             {/* Mobile */}
             {/* ================================================= */}
 
-            <div className="md:hidden divide-y divide-white/5">
+            <div className="md:hidden divide-y divide-slate-100">
 
               {members.map(
                 (member) => {
@@ -952,16 +930,14 @@ const fetchMembers = async () => {
                           member
                         )
                       }
-                      className="p-4 cursor-pointer hover:bg-white/[0.03] transition"
+                      className="p-4 cursor-pointer hover:bg-slate-50 transition"
                     >
-
-                      {/* Top */}
 
                       <div className="flex items-start justify-between gap-3">
 
                         <div className="flex gap-3">
 
-                          <div className="w-11 h-11 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center shrink-0">
+                          <div className="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
 
                             <UserRound
                               size={20}
@@ -971,7 +947,7 @@ const fetchMembers = async () => {
 
                           <div>
 
-                            <p className="font-semibold">
+                            <p className="font-semibold text-slate-900">
                               {
                                 member.fullName
                               }
@@ -999,14 +975,13 @@ const fetchMembers = async () => {
 
                       </div>
 
-                      {/* Contact */}
-
-                      <div className="mt-4 space-y-2 text-sm text-slate-400">
+                      <div className="mt-4 space-y-2 text-sm text-slate-500">
 
                         <div className="flex items-center gap-2">
 
                           <Phone
                             size={14}
+                            className="text-slate-400"
                           />
 
                           {
@@ -1019,6 +994,7 @@ const fetchMembers = async () => {
 
                           <UserRound
                             size={14}
+                            className="text-slate-400"
                           />
 
                           <span className="capitalize">
@@ -1031,11 +1007,9 @@ const fetchMembers = async () => {
 
                       </div>
 
-                      {/* Badges */}
-
                       <div className="flex flex-wrap items-center gap-2 mt-4">
 
-                        <span className="inline-flex px-3 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400">
+                        <span className="inline-flex px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-600 border border-blue-100">
                           {member.status ===
                           "active"
                             ? "ACTIVE MEMBERSHIP"
@@ -1051,8 +1025,6 @@ const fetchMembers = async () => {
                         </span>
 
                       </div>
-
-                      {/* Delete */}
 
                       <div
                         className="mt-4"
@@ -1071,7 +1043,7 @@ const fetchMembers = async () => {
                               member
                             )
                           }
-                          className="w-full h-10 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm font-medium transition"
+                          className="w-full h-10 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 border border-red-100 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm font-medium transition"
                         >
 
                           <Trash2
@@ -1107,19 +1079,17 @@ const fetchMembers = async () => {
       {detailsModal &&
         selectedMember && (
 
-          <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
 
-            <div className="w-full max-w-5xl bg-slate-900 border border-white/10 rounded-3xl max-h-[92vh] overflow-y-auto">
+            <div className="w-full max-w-5xl bg-white border border-slate-200 rounded-3xl max-h-[92vh] overflow-y-auto shadow-2xl">
 
-              {/* ================================================= */}
               {/* Details Header */}
-              {/* ================================================= */}
 
-              <div className="p-5 border-b border-white/10 flex items-center justify-between sticky top-0 bg-slate-900 z-20">
+              <div className="p-5 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-20">
 
                 <div className="flex items-center gap-3">
 
-                  <div className="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
 
                     <UserRound
                       size={23}
@@ -1129,7 +1099,7 @@ const fetchMembers = async () => {
 
                   <div>
 
-                    <h2 className="font-bold text-lg">
+                    <h2 className="font-bold text-lg text-slate-900">
                       {
                         selectedMember.fullName
                       }
@@ -1150,7 +1120,7 @@ const fetchMembers = async () => {
                   onClick={
                     closeMemberDetails
                   }
-                  className="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center hover:bg-white/10 transition"
+                  className="w-9 h-9 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center hover:bg-slate-200 transition"
                 >
                   <X size={18} />
                 </button>
@@ -1167,33 +1137,24 @@ const fetchMembers = async () => {
 
                 <div className="p-5 space-y-6">
 
-                  {/* ================================================= */}
                   {/* Member Information */}
-                  {/* ================================================= */}
 
                   <section>
 
-                    <h3 className="text-sm font-semibold text-slate-300 mb-3">
+                    <h3 className="text-sm font-semibold text-slate-800 mb-3">
                       Member Information
                     </h3>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 
-                      {/* Phone */}
+                      <div className="bg-slate-50 border border-slate-100 rounded-xl p-4">
 
-                      <div className="bg-slate-950 border border-white/5 rounded-xl p-4">
-
-                        <div className="flex items-center gap-2 text-slate-500 text-xs">
-
-                          <Phone
-                            size={14}
-                          />
-
+                        <div className="flex items-center gap-2 text-slate-400 text-xs">
+                          <Phone size={14} />
                           Phone
-
                         </div>
 
-                        <p className="mt-2 font-medium">
+                        <p className="mt-2 font-medium text-slate-900">
                           {
                             selectedMember.phone ||
                             "—"
@@ -1202,21 +1163,14 @@ const fetchMembers = async () => {
 
                       </div>
 
-                      {/* Gender */}
+                      <div className="bg-slate-50 border border-slate-100 rounded-xl p-4">
 
-                      <div className="bg-slate-950 border border-white/5 rounded-xl p-4">
-
-                        <div className="flex items-center gap-2 text-slate-500 text-xs">
-
-                          <UserRound
-                            size={14}
-                          />
-
+                        <div className="flex items-center gap-2 text-slate-400 text-xs">
+                          <UserRound size={14} />
                           Gender
-
                         </div>
 
-                        <p className="mt-2 font-medium capitalize">
+                        <p className="mt-2 font-medium text-slate-900 capitalize">
                           {
                             selectedMember.gender ||
                             "—"
@@ -1225,21 +1179,14 @@ const fetchMembers = async () => {
 
                       </div>
 
-                      {/* Address */}
+                      <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 sm:col-span-2">
 
-                      <div className="bg-slate-950 border border-white/5 rounded-xl p-4 sm:col-span-2">
-
-                        <div className="flex items-center gap-2 text-slate-500 text-xs">
-
-                          <MapPin
-                            size={14}
-                          />
-
+                        <div className="flex items-center gap-2 text-slate-400 text-xs">
+                          <MapPin size={14} />
                           Address
-
                         </div>
 
-                        <p className="mt-2 font-medium">
+                        <p className="mt-2 font-medium text-slate-900">
                           {
                             selectedMember.address ||
                             "—"
@@ -1252,15 +1199,13 @@ const fetchMembers = async () => {
 
                   </section>
 
-                  {/* ================================================= */}
                   {/* Membership */}
-                  {/* ================================================= */}
 
                   <section>
 
                     <div className="flex items-center justify-between mb-3">
 
-                      <h3 className="text-sm font-semibold text-slate-300">
+                      <h3 className="text-sm font-semibold text-slate-800">
                         Membership
                       </h3>
 
@@ -1287,14 +1232,14 @@ const fetchMembers = async () => {
                     {memberMemberships.length ===
                     0 ? (
 
-                      <div className="bg-slate-950 border border-white/5 rounded-2xl p-10 text-center">
+                      <div className="bg-slate-50 border border-slate-100 rounded-2xl p-10 text-center">
 
                         <CreditCard
                           size={36}
-                          className="mx-auto text-slate-700"
+                          className="mx-auto text-slate-300"
                         />
 
-                        <p className="mt-3 font-medium">
+                        <p className="mt-3 font-medium text-slate-900">
                           No membership assigned
                         </p>
 
@@ -1333,10 +1278,8 @@ const fetchMembers = async () => {
                                 key={
                                   membership._id
                                 }
-                                className="bg-slate-950 border border-white/5 rounded-2xl p-5"
+                                className="bg-slate-50 border border-slate-100 rounded-2xl p-5"
                               >
-
-                                {/* Plan Header */}
 
                                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
 
@@ -1346,7 +1289,7 @@ const fetchMembers = async () => {
                                       Membership Plan
                                     </p>
 
-                                    <h4 className="text-xl font-bold mt-1">
+                                    <h4 className="text-xl font-bold text-slate-900 mt-1">
                                       {
                                         membership.planName ||
                                         membership
@@ -1368,8 +1311,8 @@ const fetchMembers = async () => {
                                   <span
                                     className={`inline-flex w-fit px-3 py-1 rounded-full text-xs font-medium capitalize ${
                                       isActive
-                                        ? "bg-emerald-500/10 text-emerald-400"
-                                        : "bg-red-500/10 text-red-400"
+                                        ? "bg-emerald-50 text-emerald-600 border border-emerald-100"
+                                        : "bg-red-50 text-red-600 border border-red-100"
                                     }`}
                                   >
                                     {isActive
@@ -1379,25 +1322,16 @@ const fetchMembers = async () => {
 
                                 </div>
 
-                                {/* Membership Stats */}
-
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-5">
 
-                                  {/* Start Date */}
+                                  <div className="bg-white border border-slate-100 rounded-xl p-4">
 
-                                  <div className="bg-slate-900 rounded-xl p-4">
-
-                                    <div className="flex items-center gap-2 text-slate-500 text-xs">
-
-                                      <CalendarDays
-                                        size={14}
-                                      />
-
+                                    <div className="flex items-center gap-2 text-slate-400 text-xs">
+                                      <CalendarDays size={14} />
                                       Start Date
-
                                     </div>
 
-                                    <p className="text-sm font-medium mt-2">
+                                    <p className="text-sm font-medium text-slate-900 mt-2">
                                       {startDate.toLocaleDateString(
                                         "en-IN"
                                       )}
@@ -1405,21 +1339,14 @@ const fetchMembers = async () => {
 
                                   </div>
 
-                                  {/* End Date */}
+                                  <div className="bg-white border border-slate-100 rounded-xl p-4">
 
-                                  <div className="bg-slate-900 rounded-xl p-4">
-
-                                    <div className="flex items-center gap-2 text-slate-500 text-xs">
-
-                                      <CalendarDays
-                                        size={14}
-                                      />
-
+                                    <div className="flex items-center gap-2 text-slate-400 text-xs">
+                                      <CalendarDays size={14} />
                                       End Date
-
                                     </div>
 
-                                    <p className="text-sm font-medium mt-2">
+                                    <p className="text-sm font-medium text-slate-900 mt-2">
                                       {endDate.toLocaleDateString(
                                         "en-IN"
                                       )}
@@ -1427,21 +1354,14 @@ const fetchMembers = async () => {
 
                                   </div>
 
-                                  {/* Duration */}
+                                  <div className="bg-white border border-slate-100 rounded-xl p-4">
 
-                                  <div className="bg-slate-900 rounded-xl p-4">
-
-                                    <div className="flex items-center gap-2 text-slate-500 text-xs">
-
-                                      <Clock3
-                                        size={14}
-                                      />
-
+                                    <div className="flex items-center gap-2 text-slate-400 text-xs">
+                                      <Clock3 size={14} />
                                       Duration
-
                                     </div>
 
-                                    <p className="text-sm font-medium mt-2">
+                                    <p className="text-sm font-medium text-slate-900 mt-2">
                                       {
                                         totalDays
                                       }{" "}
@@ -1450,21 +1370,14 @@ const fetchMembers = async () => {
 
                                   </div>
 
-                                  {/* Fee */}
+                                  <div className="bg-white border border-slate-100 rounded-xl p-4">
 
-                                  <div className="bg-slate-900 rounded-xl p-4">
-
-                                    <div className="flex items-center gap-2 text-slate-500 text-xs">
-
-                                      <CreditCard
-                                        size={14}
-                                      />
-
+                                    <div className="flex items-center gap-2 text-slate-400 text-xs">
+                                      <CreditCard size={14} />
                                       Membership Fee
-
                                     </div>
 
-                                    <p className="text-sm font-semibold text-emerald-400 mt-2">
+                                    <p className="text-sm font-semibold text-emerald-600 mt-2">
                                       ₹
                                       {Number(
                                         membership.amount
@@ -1477,8 +1390,6 @@ const fetchMembers = async () => {
 
                                 </div>
 
-                                {/* Progress */}
-
                                 {isActive && (
 
                                   <div className="mt-5">
@@ -1489,7 +1400,7 @@ const fetchMembers = async () => {
                                         Membership Progress
                                       </span>
 
-                                      <span className="text-slate-400">
+                                      <span className="text-slate-500">
                                         {
                                           remainingDays
                                         }{" "}
@@ -1499,7 +1410,7 @@ const fetchMembers = async () => {
 
                                     </div>
 
-                                    <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+                                    <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
 
                                       <div
                                         className="h-full bg-blue-600 rounded-full transition-all"
@@ -1510,7 +1421,7 @@ const fetchMembers = async () => {
 
                                     </div>
 
-                                    <div className="flex items-center justify-between mt-3 text-xs text-slate-500">
+                                    <div className="flex items-center justify-between mt-3 text-xs text-slate-400">
 
                                       <span>
                                         {
@@ -1533,23 +1444,16 @@ const fetchMembers = async () => {
 
                                 )}
 
-                                {/* Membership Notes */}
-
                                 {membership.notes && (
 
-                                  <div className="mt-5 pt-4 border-t border-white/5">
+                                  <div className="mt-5 pt-4 border-t border-slate-200">
 
-                                    <div className="flex items-center gap-2 text-xs text-slate-500">
-
-                                      <FileText
-                                        size={14}
-                                      />
-
+                                    <div className="flex items-center gap-2 text-xs text-slate-400">
+                                      <FileText size={14} />
                                       Membership Notes
-
                                     </div>
 
-                                    <p className="text-sm text-slate-400 mt-2">
+                                    <p className="text-sm text-slate-600 mt-2">
                                       {
                                         membership.notes
                                       }
@@ -1571,9 +1475,7 @@ const fetchMembers = async () => {
 
                   </section>
 
-                  {/* ================================================= */}
                   {/* Payment Status */}
-                  {/* ================================================= */}
 
                   {memberMemberships.length >
                     0 && (
@@ -1582,7 +1484,7 @@ const fetchMembers = async () => {
 
                       <div className="flex items-center justify-between mb-3">
 
-                        <h3 className="text-sm font-semibold text-slate-300">
+                        <h3 className="text-sm font-semibold text-slate-800">
                           Payment Status
                         </h3>
 
@@ -1613,23 +1515,20 @@ const fetchMembers = async () => {
 
                       </div>
 
-                      <div className="bg-slate-950 border border-white/5 rounded-2xl p-5">
+                      <div className="bg-slate-50 border border-slate-100 rounded-2xl p-5">
 
                         {paymentSummary?.summary
                           ?.currentMembership ? (
 
                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
 
-                            {/* Membership Fee */}
-
-                            <div className="bg-slate-900 rounded-xl p-4">
+                            <div className="bg-white border border-slate-100 rounded-xl p-4">
 
                               <p className="text-xs text-slate-500">
                                 Membership Fee
                               </p>
 
-                              <p className="text-xl font-bold mt-2">
-
+                              <p className="text-xl font-bold text-slate-900 mt-2">
                                 ₹
                                 {Number(
                                   paymentSummary
@@ -1639,21 +1538,17 @@ const fetchMembers = async () => {
                                 ).toLocaleString(
                                   "en-IN"
                                 )}
-
                               </p>
 
                             </div>
 
-                            {/* Paid */}
-
-                            <div className="bg-slate-900 rounded-xl p-4">
+                            <div className="bg-white border border-slate-100 rounded-xl p-4">
 
                               <p className="text-xs text-slate-500">
                                 Paid Amount
                               </p>
 
-                              <p className="text-xl font-bold text-emerald-400 mt-2">
-
+                              <p className="text-xl font-bold text-emerald-600 mt-2">
                                 ₹
                                 {Number(
                                   paymentSummary
@@ -1663,14 +1558,11 @@ const fetchMembers = async () => {
                                 ).toLocaleString(
                                   "en-IN"
                                 )}
-
                               </p>
 
                             </div>
 
-                            {/* Pending */}
-
-                            <div className="bg-slate-900 rounded-xl p-4">
+                            <div className="bg-white border border-slate-100 rounded-xl p-4">
 
                               <p className="text-xs text-slate-500">
                                 Pending Amount
@@ -1684,11 +1576,10 @@ const fetchMembers = async () => {
                                       .currentMembership
                                       .pendingAmount
                                   ) > 0
-                                    ? "text-red-400"
-                                    : "text-emerald-400"
+                                    ? "text-red-600"
+                                    : "text-emerald-600"
                                 }`}
                               >
-
                                 ₹
                                 {Number(
                                   paymentSummary
@@ -1698,7 +1589,6 @@ const fetchMembers = async () => {
                                 ).toLocaleString(
                                   "en-IN"
                                 )}
-
                               </p>
 
                             </div>
@@ -1719,31 +1609,24 @@ const fetchMembers = async () => {
 
                   )}
 
-                  {/* ================================================= */}
                   {/* Member Notes */}
-                  {/* ================================================= */}
 
                   {selectedMember.notes && (
 
                     <section>
 
-                      <h3 className="text-sm font-semibold text-slate-300 mb-3">
+                      <h3 className="text-sm font-semibold text-slate-800 mb-3">
                         Member Notes
                       </h3>
 
-                      <div className="bg-slate-950 border border-white/5 rounded-2xl p-4">
+                      <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4">
 
-                        <div className="flex items-center gap-2 text-xs text-slate-500">
-
-                          <FileText
-                            size={14}
-                          />
-
+                        <div className="flex items-center gap-2 text-xs text-slate-400">
+                          <FileText size={14} />
                           Notes
-
                         </div>
 
-                        <p className="text-sm text-slate-400 mt-2">
+                        <p className="text-sm text-slate-600 mt-2">
                           {
                             selectedMember.notes
                           }
@@ -1771,17 +1654,17 @@ const fetchMembers = async () => {
 
       {modal && (
 
-        <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
 
-          <div className="w-full max-w-2xl bg-slate-900 border border-white/10 rounded-3xl max-h-[90vh] overflow-y-auto">
+          <div className="w-full max-w-2xl bg-white border border-slate-200 rounded-3xl max-h-[90vh] overflow-y-auto shadow-2xl">
 
             {/* Modal Header */}
 
-            <div className="p-5 border-b border-white/10 flex items-center justify-between">
+            <div className="p-5 border-b border-slate-100 flex items-center justify-between">
 
               <div>
 
-                <h2 className="font-bold text-lg">
+                <h2 className="font-bold text-lg text-slate-900">
                   Add New Member
                 </h2>
 
@@ -1795,7 +1678,7 @@ const fetchMembers = async () => {
                 onClick={() =>
                   setModal(false)
                 }
-                className="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center hover:bg-white/10 transition"
+                className="w-9 h-9 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center hover:bg-slate-200 transition"
               >
                 <X size={18} />
               </button>
@@ -1810,8 +1693,6 @@ const fetchMembers = async () => {
             >
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
-                {/* Full Name */}
 
                 <input
                   required
@@ -1829,8 +1710,6 @@ const fetchMembers = async () => {
                   className="input"
                 />
 
-                {/* Phone */}
-
                 <input
                   required
                   placeholder="Phone Number"
@@ -1847,8 +1726,6 @@ const fetchMembers = async () => {
                   className="input"
                 />
 
-                {/* Gender */}
-
                 <select
                   value={
                     form.gender
@@ -1862,7 +1739,6 @@ const fetchMembers = async () => {
                   }
                   className="input"
                 >
-
                   <option value="male">
                     Male
                   </option>
@@ -1874,10 +1750,7 @@ const fetchMembers = async () => {
                   <option value="other">
                     Other
                   </option>
-
                 </select>
-
-                {/* Address */}
 
                 <input
                   placeholder="Address"
@@ -1898,7 +1771,7 @@ const fetchMembers = async () => {
 
               <button
                 type="submit"
-                className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-500 font-semibold transition"
+                className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold transition shadow-sm shadow-blue-600/20"
               >
                 Create Member
               </button>
@@ -1916,3 +1789,4 @@ const fetchMembers = async () => {
 };
 
 export default Members;
+

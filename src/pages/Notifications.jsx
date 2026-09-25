@@ -62,26 +62,27 @@ const Notifications = () => {
   const getIcon = (type) => {
     if (type === "membership_expired") {
       return (
-        <AlertCircle className="text-red-400" />
+        <AlertCircle className="text-red-600" />
       );
     }
 
     if (type === "payment_pending") {
       return (
-        <CreditCard className="text-orange-400" />
+        <CreditCard className="text-orange-600" />
       );
     }
 
     return (
-      <Clock3 className="text-amber-400" />
+      <Clock3 className="text-amber-600" />
     );
   };
 
   return (
     <div className="max-w-4xl space-y-6">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">
+          <h1 className="text-2xl font-bold text-slate-900">
             Notifications
           </h1>
 
@@ -92,26 +93,29 @@ const Notifications = () => {
 
         <button
           onClick={markAllRead}
-          className="h-10 px-4 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center gap-2 text-sm"
+          className="h-10 px-4 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 flex items-center justify-center gap-2 text-sm font-medium shadow-sm transition"
         >
           <CheckCheck size={17} />
           Mark all read
         </button>
       </div>
 
-      <div className="bg-slate-900 border border-white/10 rounded-2xl overflow-hidden">
+      {/* Notifications Card */}
+      <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
         {loading ? (
           <div className="p-10 text-center text-slate-500">
             Loading notifications...
           </div>
         ) : notifications.length === 0 ? (
           <div className="p-16 text-center">
-            <Bell
-              size={40}
-              className="mx-auto text-slate-700"
-            />
+            <div className="w-16 h-16 mx-auto rounded-2xl bg-blue-50 flex items-center justify-center">
+              <Bell
+                size={32}
+                className="text-blue-600"
+              />
+            </div>
 
-            <p className="mt-4 font-medium">
+            <p className="mt-4 font-semibold text-slate-900">
               You're all caught up
             </p>
 
@@ -120,50 +124,67 @@ const Notifications = () => {
             </p>
           </div>
         ) : (
-          <div className="divide-y divide-white/5">
+          <div className="divide-y divide-slate-100">
             {notifications.map(
               (notification) => (
                 <div
                   key={notification._id}
                   className={`
-                    p-5 flex gap-4
+                    p-5 flex gap-4 transition
                     ${
                       !notification.isRead
-                        ? "bg-blue-500/[0.03]"
-                        : ""
+                        ? "bg-blue-50/50"
+                        : "hover:bg-slate-50"
                     }
                   `}
                 >
-                  <div className="w-11 h-11 shrink-0 rounded-xl bg-white/5 flex items-center justify-center">
+                  {/* Icon */}
+                  <div
+                    className={`
+                      w-11 h-11 shrink-0 rounded-xl
+                      flex items-center justify-center
+                      ${
+                        notification.type ===
+                        "membership_expired"
+                          ? "bg-red-50"
+                          : notification.type ===
+                            "payment_pending"
+                          ? "bg-orange-50"
+                          : "bg-amber-50"
+                      }
+                    `}
+                  >
                     {getIcon(
                       notification.type
                     )}
                   </div>
 
+                  {/* Content */}
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                      <h3 className="font-semibold">
+                      <h3 className="font-semibold text-slate-900">
                         {notification.title}
                       </h3>
 
                       {!notification.isRead && (
-                        <span className="text-[10px] uppercase tracking-wider text-blue-400">
+                        <span className="w-fit text-[10px] uppercase tracking-wider font-semibold text-blue-700 bg-blue-100 px-2 py-1 rounded-full">
                           New
                         </span>
                       )}
                     </div>
 
-                    <p className="text-sm text-slate-400 mt-1">
+                    <p className="text-sm text-slate-600 mt-1 leading-6">
                       {notification.message}
                     </p>
 
-                    <p className="text-xs text-slate-600 mt-2">
+                    <p className="text-xs text-slate-400 mt-2">
                       {new Date(
                         notification.createdAt
                       ).toLocaleString("en-IN")}
                     </p>
                   </div>
 
+                  {/* Read */}
                   {!notification.isRead && (
                     <button
                       onClick={() =>
@@ -171,9 +192,9 @@ const Notifications = () => {
                           notification._id
                         )
                       }
-                      className="self-start text-xs text-blue-400 hover:text-blue-300"
+                      className="self-start text-xs font-medium text-blue-600 hover:text-blue-700 whitespace-nowrap"
                     >
-                      Read
+                      Mark read
                     </button>
                   )}
                 </div>

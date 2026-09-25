@@ -3,17 +3,17 @@ const StatCard = ({
   value,
   icon: Icon,
   description,
-  iconClass = "bg-blue-500/10 text-blue-400",
+  iconClass = "bg-blue-50 text-blue-600",
 }) => {
   return (
-    <div className="group bg-slate-900 border border-white/10 rounded-2xl p-5 hover:border-white/20 transition-all">
+    <div className="group bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-blue-200 transition-all">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-slate-500">
             {title}
           </p>
 
-          <h3 className="text-2xl sm:text-3xl font-bold mt-2">
+          <h3 className="text-2xl sm:text-3xl font-bold mt-2 text-slate-900">
             {value}
           </h3>
 

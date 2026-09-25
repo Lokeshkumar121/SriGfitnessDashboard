@@ -1,5 +1,12 @@
+
 import { useState } from "react";
-import { Dumbbell, Eye, EyeOff, Lock, Mail } from "lucide-react";
+import {
+  Dumbbell,
+  Eye,
+  EyeOff,
+  Lock,
+  Mail,
+} from "lucide-react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
@@ -50,29 +57,37 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center px-4 relative overflow-hidden">
-      <div className="absolute -top-40 -right-40 w-96 h-96 bg-blue-600/20 blur-3xl rounded-full" />
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-10 relative overflow-hidden">
+      {/* Background Shapes */}
+      <div className="absolute -top-32 -right-32 w-96 h-96 bg-blue-100 blur-3xl rounded-full" />
 
-      <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-cyan-500/10 blur-3xl rounded-full" />
+      <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-sky-100 blur-3xl rounded-full" />
+
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full border border-blue-100/70" />
 
       <div className="relative w-full max-w-md">
+        {/* Logo / Brand */}
         <div className="text-center mb-8">
-          <div className="inline-flex w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-400 items-center justify-center shadow-xl shadow-blue-500/20">
-            <Dumbbell size={30} />
+          <div className="inline-flex w-16 h-16 rounded-2xl bg-blue-600 items-center justify-center shadow-lg shadow-blue-600/20">
+            <Dumbbell
+              size={30}
+              className="text-white"
+            />
           </div>
 
-          <h1 className="text-3xl font-bold mt-5">
+          <h1 className="text-3xl font-bold text-slate-900 mt-5 tracking-tight">
             Sri G Fitness
           </h1>
 
-          <p className="text-slate-400 mt-2">
+          <p className="text-slate-500 mt-2 text-sm">
             Club Management Dashboard
           </p>
         </div>
 
-        <div className="bg-slate-900/90 backdrop-blur-xl border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl">
+        {/* Login Card */}
+        <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/60">
           <div className="mb-7">
-            <h2 className="text-xl font-bold">
+            <h2 className="text-xl font-bold text-slate-900">
               Welcome back
             </h2>
 
@@ -81,8 +96,9 @@ const Login = () => {
             </p>
           </div>
 
+          {/* Error */}
           {error && (
-            <div className="mb-5 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+            <div className="mb-5 p-3.5 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm">
               {error}
             </div>
           )}
@@ -91,15 +107,16 @@ const Login = () => {
             onSubmit={handleSubmit}
             className="space-y-5"
           >
+            {/* Email */}
             <div>
-              <label className="text-sm text-slate-300">
+              <label className="text-sm font-medium text-slate-700">
                 Email
               </label>
 
               <div className="relative mt-2">
                 <Mail
                   size={18}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
                 />
 
                 <input
@@ -108,22 +125,23 @@ const Login = () => {
                   onChange={(e) =>
                     setEmail(e.target.value)
                   }
-                  className="w-full h-12 bg-slate-950 border border-white/10 rounded-xl pl-11 pr-4 outline-none focus:border-blue-500 transition"
+                  className="w-full h-12 bg-white border border-slate-200 rounded-xl pl-11 pr-4 outline-none text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition"
                   placeholder="Enter email"
                   required
                 />
               </div>
             </div>
 
+            {/* Password */}
             <div>
-              <label className="text-sm text-slate-300">
+              <label className="text-sm font-medium text-slate-700">
                 Password
               </label>
 
               <div className="relative mt-2">
                 <Lock
                   size={18}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
                 />
 
                 <input
@@ -136,7 +154,7 @@ const Login = () => {
                   onChange={(e) =>
                     setPassword(e.target.value)
                   }
-                  className="w-full h-12 bg-slate-950 border border-white/10 rounded-xl pl-11 pr-12 outline-none focus:border-blue-500 transition"
+                  className="w-full h-12 bg-white border border-slate-200 rounded-xl pl-11 pr-12 outline-none text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition"
                   placeholder="Enter password"
                   required
                 />
@@ -148,7 +166,7 @@ const Login = () => {
                       !showPassword
                     )
                   }
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition"
                 >
                   {showPassword ? (
                     <EyeOff size={18} />
@@ -159,9 +177,11 @@ const Login = () => {
               </div>
             </div>
 
+            {/* Login Button */}
             <button
+              type="submit"
               disabled={loading}
-              className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 transition font-semibold"
+              className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition font-semibold text-white shadow-sm shadow-blue-600/20"
             >
               {loading
                 ? "Signing in..."
@@ -170,7 +190,8 @@ const Login = () => {
           </form>
         </div>
 
-        <p className="text-center text-xs text-slate-600 mt-6">
+        {/* Footer */}
+        <p className="text-center text-xs text-slate-400 mt-6">
           Sri G Fitness Club Management System
         </p>
       </div>

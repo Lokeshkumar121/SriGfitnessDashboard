@@ -149,9 +149,10 @@ const Memberships = () => {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">
+          <h1 className="text-2xl font-bold text-slate-900">
             Membership Plans
           </h1>
 
@@ -162,29 +163,33 @@ const Memberships = () => {
 
         <button
           onClick={() => setModal(true)}
-          className="h-11 px-5 rounded-xl bg-blue-600 hover:bg-blue-500 flex items-center justify-center gap-2 font-semibold"
+          className="h-11 px-5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-2 font-semibold shadow-sm transition"
         >
           <Plus size={18} />
           Add Plan
         </button>
       </div>
 
+      {/* Plans */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
         {plans.map((plan) => (
           <div
             key={plan._id}
-            className="bg-slate-900 border border-white/10 rounded-2xl p-6 hover:border-blue-500/30 transition"
+            className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md hover:border-blue-200 transition"
           >
-            <div className="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center">
+            {/* Icon */}
+            <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
               <Dumbbell size={22} />
             </div>
 
-            <h2 className="text-xl font-bold mt-5">
+            {/* Plan Name */}
+            <h2 className="text-xl font-bold text-slate-900 mt-5">
               {plan.name}
             </h2>
 
+            {/* Price */}
             <div className="flex items-end gap-1 mt-3">
-              <span className="text-3xl font-bold">
+              <span className="text-3xl font-bold text-slate-900">
                 ₹
                 {Number(
                   plan.price
@@ -192,24 +197,27 @@ const Memberships = () => {
               </span>
             </div>
 
-            <div className="flex items-center gap-2 text-sm text-slate-400 mt-3">
+            {/* Duration */}
+            <div className="flex items-center gap-2 text-sm text-slate-500 mt-3">
               <CalendarDays size={16} />
 
               {plan.durationInDays} days
             </div>
 
+            {/* Description */}
             {plan.description && (
-              <p className="text-sm text-slate-500 mt-4">
+              <p className="text-sm text-slate-500 mt-4 leading-6">
                 {plan.description}
               </p>
             )}
 
-            <div className="mt-6 pt-4 border-t border-white/10">
+            {/* Status */}
+            <div className="mt-6 pt-4 border-t border-slate-100">
               <span
-                className={`text-xs px-3 py-1 rounded-full ${
+                className={`text-xs px-3 py-1 rounded-full font-medium ${
                   plan.isActive
-                    ? "bg-emerald-500/10 text-emerald-400"
-                    : "bg-red-500/10 text-red-400"
+                    ? "bg-emerald-50 text-emerald-700"
+                    : "bg-red-50 text-red-700"
                 }`}
               >
                 {plan.isActive
@@ -218,12 +226,13 @@ const Memberships = () => {
               </span>
             </div>
 
+            {/* Assign */}
             {plan.isActive && (
               <button
                 onClick={() =>
                   openAssignModal(plan)
                 }
-                className="w-full mt-5 h-11 rounded-xl bg-blue-600 hover:bg-blue-500 flex items-center justify-center gap-2 font-semibold"
+                className="w-full mt-5 h-11 rounded-xl bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-2 font-semibold shadow-sm transition"
               >
                 <UserPlus size={17} />
                 Assign to Member
@@ -233,8 +242,9 @@ const Memberships = () => {
         ))}
       </div>
 
+      {/* Empty State */}
       {plans.length === 0 && (
-        <div className="text-center py-16 text-slate-500">
+        <div className="bg-white border border-slate-200 rounded-2xl text-center py-16 text-slate-500">
           No membership plans available.
         </div>
       )}
@@ -242,17 +252,19 @@ const Memberships = () => {
       {/* Create Membership Plan Modal */}
 
       {modal && (
-        <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-lg bg-slate-900 border border-white/10 rounded-3xl">
-            <div className="p-5 border-b border-white/10 flex justify-between">
-              <h2 className="font-bold text-lg">
+        <div className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-lg bg-white border border-slate-200 rounded-3xl shadow-2xl">
+            {/* Header */}
+            <div className="p-5 border-b border-slate-200 flex justify-between items-center">
+              <h2 className="font-bold text-lg text-slate-900">
                 Create Membership Plan
               </h2>
 
               <button
                 onClick={() => setModal(false)}
+                className="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition"
               >
-                <X />
+                <X size={18} />
               </button>
             </div>
 
@@ -320,7 +332,7 @@ const Memberships = () => {
                 className="input resize-none"
               />
 
-              <button className="w-full h-12 bg-blue-600 hover:bg-blue-500 rounded-xl font-semibold">
+              <button className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition shadow-sm">
                 Create Plan
               </button>
             </form>
@@ -331,11 +343,12 @@ const Memberships = () => {
       {/* Assign Membership Modal */}
 
       {assignModal && selectedPlan && (
-        <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-lg bg-slate-900 border border-white/10 rounded-3xl max-h-[90vh] overflow-y-auto">
-            <div className="p-5 border-b border-white/10 flex items-center justify-between">
+        <div className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-lg bg-white border border-slate-200 rounded-3xl shadow-2xl max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="p-5 border-b border-slate-200 flex items-center justify-between">
               <div>
-                <h2 className="font-bold text-lg">
+                <h2 className="font-bold text-lg text-slate-900">
                   Assign Membership
                 </h2>
 
@@ -349,7 +362,7 @@ const Memberships = () => {
                 onClick={() =>
                   setAssignModal(false)
                 }
-                className="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center"
+                className="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition"
               >
                 <X size={18} />
               </button>
@@ -364,7 +377,7 @@ const Memberships = () => {
               {/* Member */}
 
               <div>
-                <label className="block text-sm text-slate-400 mb-2">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
                   Select Member
                 </label>
 
@@ -399,16 +412,16 @@ const Memberships = () => {
               {/* Selected Plan */}
 
               <div>
-                <label className="block text-sm text-slate-400 mb-2">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
                   Membership Plan
                 </label>
 
-                <div className="input flex items-center justify-between">
-                  <span>
+                <div className="input flex items-center justify-between bg-slate-50">
+                  <span className="text-slate-900">
                     {selectedPlan.name}
                   </span>
 
-                  <span className="text-blue-400 font-semibold">
+                  <span className="text-blue-600 font-semibold">
                     ₹
                     {Number(
                       selectedPlan.price
@@ -420,7 +433,7 @@ const Memberships = () => {
               {/* Start Date */}
 
               <div>
-                <label className="block text-sm text-slate-400 mb-2">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
                   Start Date
                 </label>
 
@@ -447,7 +460,7 @@ const Memberships = () => {
               {/* Notes */}
 
               <div>
-                <label className="block text-sm text-slate-400 mb-2">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
                   Notes
                 </label>
 
@@ -465,7 +478,7 @@ const Memberships = () => {
                 />
               </div>
 
-              <button className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-500 font-semibold flex items-center justify-center gap-2">
+              <button className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold flex items-center justify-center gap-2 shadow-sm transition">
                 <UserPlus size={18} />
                 Assign Membership
               </button>

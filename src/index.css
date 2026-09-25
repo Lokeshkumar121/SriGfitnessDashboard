@@ -11,8 +11,8 @@ html {
 body {
   margin: 0;
   min-width: 320px;
-  background: #020617;
-  color: white;
+  background: #f8fafc;
+  color: #0f172a;
   font-family:
     Inter,
     ui-sans-serif,
@@ -34,30 +34,66 @@ button {
   cursor: pointer;
 }
 
+/* ================================
+   Common Input
+================================ */
+
 .input {
   width: 100%;
   min-height: 46px;
-  background: #020617;
-  border: 1px solid rgb(255 255 255 / 0.1);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 0.75rem;
   padding: 0.75rem 1rem;
   outline: none;
-  color: white;
-  transition: 0.2s;
+  color: #0f172a;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.input:hover {
+  border-color: #cbd5e1;
 }
 
 .input:focus {
-  border-color: rgb(59 130 246);
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgb(37 99 235 / 0.1);
 }
 
 .input::placeholder {
-  color: rgb(100 116 139);
+  color: #94a3b8;
 }
 
 select.input {
-  color: white;
+  color: #0f172a;
+  background: #ffffff;
 }
 
 select.input option {
-  background: #0f172a;
+  background: #ffffff;
+  color: #0f172a;
+}
+
+/* ================================
+   Scrollbar
+================================ */
+
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }

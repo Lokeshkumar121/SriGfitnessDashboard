@@ -10,7 +10,6 @@ import {
   X,
   ChevronRight,
   CircleUserRound,
-  ClipboardList,
 } from "lucide-react";
 
 import { NavLink, Outlet, useLocation } from "react-router-dom";
@@ -57,11 +56,11 @@ const Layout = () => {
     )?.name || "Dashboard";
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-slate-50 text-slate-900">
       {/* Mobile Overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/60 z-40 lg:hidden"
+          className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -70,7 +69,7 @@ const Layout = () => {
       <aside
         className={`
           fixed z-50 top-0 left-0 h-screen w-72
-          bg-slate-900 border-r border-white/10
+          bg-white border-r border-slate-200
           transition-transform duration-300
           lg:translate-x-0
           ${
@@ -82,24 +81,24 @@ const Layout = () => {
       >
         <div className="h-full flex flex-col">
           {/* Logo */}
-          <div className="h-20 px-6 flex items-center border-b border-white/10">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/20">
+          <div className="h-20 px-6 flex items-center border-b border-slate-200">
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-blue-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-600/20 text-white">
               <Dumbbell size={22} />
             </div>
 
             <div className="ml-3">
-              <h1 className="font-bold text-lg">
+              <h1 className="font-bold text-lg text-slate-900">
                 Sri G Fitness
               </h1>
 
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500">
                 Club Management
               </p>
             </div>
 
             <button
               onClick={() => setSidebarOpen(false)}
-              className="ml-auto lg:hidden text-slate-400"
+              className="ml-auto lg:hidden w-9 h-9 rounded-lg hover:bg-slate-100 text-slate-500 flex items-center justify-center"
             >
               <X size={22} />
             </button>
@@ -107,7 +106,7 @@ const Layout = () => {
 
           {/* Navigation */}
           <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-            <p className="text-[11px] uppercase tracking-widest text-slate-500 px-3 mb-3">
+            <p className="text-[11px] uppercase tracking-widest text-slate-400 px-3 mb-3 font-semibold">
               Management
             </p>
 
@@ -118,7 +117,9 @@ const Layout = () => {
                 <NavLink
                   key={item.path}
                   to={item.path}
-                  onClick={() => setSidebarOpen(false)}
+                  onClick={() =>
+                    setSidebarOpen(false)
+                  }
                   end={item.path === "/"}
                   className={({ isActive }) =>
                     `
@@ -126,8 +127,8 @@ const Layout = () => {
                     rounded-xl transition-all
                     ${
                       isActive
-                        ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20"
-                        : "text-slate-400 hover:bg-white/5 hover:text-white"
+                        ? "bg-blue-600 text-white shadow-md shadow-blue-600/20"
+                        : "text-slate-600 hover:bg-blue-50 hover:text-blue-700"
                     }
                     `
                   }
@@ -148,17 +149,17 @@ const Layout = () => {
           </nav>
 
           {/* User */}
-          <div className="p-4 border-t border-white/10">
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03]">
-              <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
+          <div className="p-4 border-t border-slate-200">
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+              <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
                 <CircleUserRound
                   size={20}
-                  className="text-blue-400"
+                  className="text-blue-600"
                 />
               </div>
 
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold truncate">
+                <p className="text-sm font-semibold text-slate-900 truncate">
                   {user?.name}
                 </p>
 
@@ -170,11 +171,11 @@ const Layout = () => {
 
             <button
               onClick={logout}
-              className="w-full mt-3 flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 transition"
+              className="w-full mt-3 flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition"
             >
               <LogOut size={18} />
 
-              <span className="text-sm">
+              <span className="text-sm font-medium">
                 Logout
               </span>
             </button>
@@ -185,18 +186,20 @@ const Layout = () => {
       {/* Main */}
       <div className="lg:ml-72 min-h-screen">
         {/* Header */}
-        <header className="sticky top-0 z-30 h-20 bg-slate-950/90 backdrop-blur-xl border-b border-white/10">
+        <header className="sticky top-0 z-30 h-20 bg-white/90 backdrop-blur-xl border-b border-slate-200">
           <div className="h-full px-4 sm:px-6 lg:px-8 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
-                onClick={() => setSidebarOpen(true)}
-                className="lg:hidden w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center"
+                onClick={() =>
+                  setSidebarOpen(true)
+                }
+                className="lg:hidden w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition"
               >
                 <Menu size={21} />
               </button>
 
               <div>
-                <h2 className="font-bold text-lg">
+                <h2 className="font-bold text-lg text-slate-900">
                   {currentPage}
                 </h2>
 
@@ -207,7 +210,7 @@ const Layout = () => {
 
                   <span>/</span>
 
-                  <span className="text-slate-400">
+                  <span className="text-slate-700">
                     {currentPage}
                   </span>
                 </div>
@@ -215,15 +218,17 @@ const Layout = () => {
             </div>
 
             <div className="flex items-center gap-3">
+              {/* Notifications */}
               <NavLink
                 to="/notifications"
-                className="relative w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center transition"
+                className="relative w-10 h-10 rounded-xl bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-slate-600 flex items-center justify-center transition"
               >
                 <Bell size={19} />
               </NavLink>
 
-              <div className="hidden sm:flex items-center gap-2 pl-3 border-l border-white/10">
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center">
+              {/* User Avatar */}
+              <div className="hidden sm:flex items-center gap-2 pl-3 border-l border-slate-200">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-600 to-cyan-500 flex items-center justify-center text-white shadow-sm">
                   <span className="font-bold text-sm">
                     {user?.name
                       ?.charAt(0)
